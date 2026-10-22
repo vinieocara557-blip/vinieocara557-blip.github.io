@@ -40,3 +40,12 @@ main{padding:6px 12px}
 .ev{display:flex;gap:8px;align-items:center;border-top:1px solid var(--line);padding:8px 0}.ev .t{flex:1}
 .sheet{background:#fff;color:#000;padding:14px;border-radius:10px;font-size:14px}.sheet h3{margin:12px 0 4px}.sheet table{width:100%;border-collapse:collapse}.sheet td,.sheet th{border-bottom:1px solid #ccc;padding:3px;text-align:left}
 @media print{body>*:not(#modal){display:none!important}.modal{position:static;background:#fff;padding:0}.modal .box{border:0;background:#fff}.noprint{display:none!important}}
+.fsheet{background:#05070a;border-radius:14px;padding:16px 12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.fs-hd{text-align:center}.fs-hd img{height:64px}.fs-k{color:var(--blue);font-size:11px;font-weight:700;letter-spacing:.12em;margin:8px 0 14px}
+.fs-v{background:#0d141b;border:1px solid #1f3a46;border-radius:14px;padding:14px}.fs-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.fs-top b{font-size:20px}.fs-top span,.fs-i{color:#8aa3ad;font-size:13px}
+.fs-i{padding-bottom:10px;margin:4px 0 8px;border-bottom:1px solid #1f3a46}.fs-r{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:3px 0;color:#c9d6db}.fs-r b{color:var(--ink);white-space:nowrap}.fs-sp{color:var(--amber)!important}
+.fs-t{background:#0f2a33;border-radius:10px;padding:8px 10px;margin-top:10px}.fs-10 span,.fs-10 b{color:var(--blue)!important;font-weight:700}.fs-10 b{font-size:22px}.fs-10{align-items:center}.fs-n{color:#8aa3ad;font-size:11px;margin-top:8px}
+.fs-sec{color:var(--blue);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin:20px 0 8px;display:flex;align-items:center;gap:10px}.fs-sec:after{content:"";flex:1;height:1px;background:#1f3a46}
+.fs-c{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#0f1720;border:1px solid #18262f;border-left:4px solid var(--blue);border-radius:10px;padding:10px 10px 10px 12px;margin:7px 0}
+.fs-nm{font-weight:700;font-size:16px}.fs-sub{color:#8aa3ad;font-size:12.5px;margin-top:2px}
+.fs-l{background:var(--blue);color:#05070a;border-radius:9px;min-width:72px;padding:4px 8px;text-align:center;flex:none}.fs-l small{display:block;font-size:9px;font-weight:700;letter-spacing:.06em}.fs-l b{font-size:24px;line-height:1.1}.fs-l i{font-style:normal;font-size:11px;margin-left:3px}

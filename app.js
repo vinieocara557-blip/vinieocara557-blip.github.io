@@ -64,16 +64,11 @@ document.addEventListener('change',function(e){var t=e.target;
  else if(t.id==='evName'){ev.name=t.value.trim()||'Evento';save();}});
 $('#evName').addEventListener('input',function(){ev.name=this.value||'Evento';save();});
 /* Texto WhatsApp */
-function text(){var r=C.compute(ev,M),o=['*'+ev.name+'* — '+r.people+' pessoas',''];
- C.ROWS.forEach(function(row){var R=r.rows[row[0]];if(!R.lines.length)return;o.push('*'+row[1]+'*');
-  R.lines.forEach(function(L){var it=L.it;
-   if(L.wine)o.push('• '+it.name+': '+L.lancar+' garrafas · '+B(L.value)+' · '+B(99)+' a garrafa');
-   else if(it.plate)o.push('• '+it.name+': '+L.lancar+' pratos · '+B(L.value)+' · 1 prato para 2 pessoas · '+B(it.price)+' o prato');
-   else o.push('• '+it.name+': sai '+L.sai+' '+u(it)+' · '+B(L.value)+' · '+N(L.q)+' por pessoa · lançar '+L.lancar+' · '+B(L.unitValue)+(it.unit==='fatias'?' a fatia':' a unidade'));});
-  o.push('_Valor '+row[1]+': '+B(R.total)+'_','');});
- o.push('Valor das peças: '+B(r.pieces));if(r.perPersonFixed!=null)o.push('Valor por pessoa: '+B(r.perPersonFixed));
- if(r.extra)o.push('Extra (prato/vinho/sobremesa): '+B(r.extra));
- if(!r.closed)o.push('Coloque o número de pessoas para a conta fechar');else{o.push('*Valor total: '+B(r.total)+'*','*Total com 10%: '+B(r.total10)+'*');}
+function text(){var d=sheetData(),o=['*Mirai Iguatemi – '+d.name+'*',d.date+' · '+d.info.replace(/  ·  /g,' · '),''];
+ if(d.closed){o.push('*Valores*');d.vals.forEach(function(v){o.push(v[0]+': '+v[1]);});o.push('Total: '+d.total,'*Total com 10%: '+d.total10+'*');if(d.missing)o.push('_Itens sem preço não entram na soma_');}
+ else o.push('_'+d.warn+'_');
+ d.rows.forEach(function(R){o.push('','*'+R.title+'*');R.items.forEach(function(it){var m=it.sub.split('  ·  ');
+  o.push('• '+it.name+' — lançar *'+it.lancar+'*'+(it.unit?' '+it.unit:'')+(it.unit==='garrafas'?'':' ('+m[0].toLowerCase()+')'));});});
  return o.join('\n');}
 function modal(html){var m=$('#modal');m.innerHTML='<div class="box">'+html+'</div>';m.hidden=false;window.scrollTo(0,0);}
 function close(){$('#modal').hidden=true;$('#modal').innerHTML='';}
@@ -88,8 +83,14 @@ function sheetLines(){var r=C.compute(ev,M),L=[{t:'Mirai Iguatemi - Ficha do eve
   L.push({t:'  Total '+row[1]+': '+B(R.total),b:1},{t:' '});});
  L.push({t:'Peças: '+B(r.pieces)});if(r.perPersonFixed!=null)L.push({t:'Por pessoa: '+B(r.perPersonFixed)});if(r.extra)L.push({t:'Extra: '+B(r.extra)});
  if(r.closed)L.push({t:'Total: '+B(r.total),b:1,s:12},{t:'Total com 10%: '+B(r.total10),b:1,s:14});else L.push({t:'Coloque o número de pessoas para a conta fechar',b:1});return L;}
-function showSheet(){var L=sheetLines(),hh=L.map(function(x){return x.b?'<div style="font-weight:700;font-size:'+(x.s||12)+'px">'+h(x.t)+'</div>':'<div>'+h(x.t)+'</div>';}).join('');
- modal('<div class="acts noprint"><button class="btn sm ghost" id="mBack">Voltar</button><button class="btn sm" id="mSave">Salvar</button><button class="btn sm ghost" id="mCopy">Copiar</button></div><p class="noprint"></p><div class="sheet">'+hh+'</div>');
+function sheetHtml(d){var s='<div class="fs-hd"><img src="logo.svg" alt="Mirai"><div class="fs-k">FICHA DO EVENTO</div></div><div class="fs-v"><div class="fs-top"><b>'+h(d.name)+'</b><span>'+h(d.date)+'</span></div><div class="fs-i">'+h(d.info)+'</div>';
+ d.vals.forEach(function(v){s+='<div class="fs-r"><span>'+h(v[0])+'</span><b'+(v[1]==='Sem preço'?' class="fs-sp"':'')+'>'+h(v[1])+'</b></div>';});
+ if(d.closed)s+='<div class="fs-t"><div class="fs-r"><span>Total</span><b>'+h(d.total)+'</b></div><div class="fs-r fs-10"><span>Total com 10%</span><b>'+h(d.total10)+'</b></div></div>';else s+='<div class="warn">'+h(d.warn)+'</div>';
+ if(d.missing)s+='<div class="fs-n">* Itens sem preço não entram na soma.</div>';s+='</div>';
+ d.rows.forEach(function(R){s+='<div class="fs-sec">'+h(R.title)+'</div>';R.items.forEach(function(it){s+='<div class="fs-c"><div><div class="fs-nm">'+h(it.name)+'</div><div class="fs-sub">'+h(it.sub)+'</div></div><div class="fs-l"><small>LANÇAR</small><b>'+it.lancar+'</b>'+(it.unit?'<i>'+h(it.unit)+'</i>':'')+'</div></div>';});});
+ return '<div class="fsheet">'+s+'</div>';}
+function showSheet(){var L=sheetLines();
+ modal('<div class="acts noprint"><button class="btn sm ghost" id="mBack">Voltar</button><button class="btn sm" id="mSave">Salvar</button><button class="btn sm ghost" id="mCopy">Copiar</button></div><p class="noprint"></p>'+sheetHtml(sheetData()));
  $('#mBack').onclick=close;$('#mCopy').onclick=showCopy;
  $('#mSave').onclick=function(){makeSheet(function(bytes){var name=(ev.name||'evento').replace(/[^\wÀ-ú -]/g,'').trim()+'.pdf',blob=new Blob([bytes],{type:'application/pdf'});
   var f;try{f=new File([blob],name,{type:'application/pdf'});}catch(e){}
@@ -101,7 +102,7 @@ function sheetData(){var r=C.compute(ev,M),ml={'330':'R$ 330 por pessoa','350':'
  ['quentes','sobremesa','vinho'].forEach(function(k){var R=r.rows[k];if(R.lines.length)v.push([R.title,R.lines.every(function(x){return x.value==null;})?'Sem preço':B(R.total)]);});
  if(r.closed)v.push(['Por pessoa com 10%',B(r.perPerson10)]);
  var rows=[];C.ROWS.forEach(function(row){var R=r.rows[row[0]];if(!R.lines.length)return;
-  rows.push({title:row[1],items:R.lines.map(function(x){var it=x.it;return {name:it.name,lancar:x.lancar,unit:x.wine?'garrafas':it.plate?'pratos':'',
+  var vis=R.lines.filter(function(x){return x.lancar>0;});if(!vis.length)return;rows.push({title:row[1],items:vis.map(function(x){var it=x.it;return {name:it.name,lancar:x.lancar,unit:x.wine?'garrafas':it.plate?'pratos':'',
    sub:(x.wine?x.sai+' garrafas':it.plate?'Sai '+x.sai+' pratos':'Sai '+x.sai+' '+u(it))+'  ·  '+B(x.value)};})});});
  return {name:ev.name||'Evento',date:new Date().toLocaleDateString('pt-BR'),info:r.people+' pessoas  ·  '+ml,vals:v,closed:r.closed,total:B(r.total),total10:B(r.total10),
   warn:'Coloque o número de pessoas para a conta fechar',missing:r.missing,rows:rows};}

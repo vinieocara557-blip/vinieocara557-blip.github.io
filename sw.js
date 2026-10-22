@@ -1,4 +1,4 @@
-var C='combinado-v3',A=['./','index.html','styles.css','app.js','calc.js','data.js','pdf.js','logo.svg','manifest.webmanifest','icon-180.png','icon-192.png','icon-512.png','cardapio-mirai.pdf'];
+var C='combinado-v4',A=['./','index.html','styles.css','app.js','calc.js','data.js','pdf.js','logo.svg','manifest.webmanifest','icon-180.png','icon-192.png','icon-512.png','cardapio-mirai.pdf'];
 self.addEventListener('install',function(e){self.skipWaiting();e.waitUntil(caches.open(C).then(function(c){return c.addAll(A);}).catch(function(){}));});
 self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.filter(function(x){return x!==C;}).map(function(x){return caches.delete(x);}));}).then(function(){return self.clients.claim();}));});
 self.addEventListener('fetch',function(e){var r=e.request;if(r.method!=='GET'||new URL(r.url).origin!==location.origin)return;
