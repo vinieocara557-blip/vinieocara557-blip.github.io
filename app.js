@@ -91,10 +91,25 @@ function sheetLines(){var r=C.compute(ev,M),L=[{t:'Mirai Iguatemi - Ficha do eve
 function showSheet(){var L=sheetLines(),hh=L.map(function(x){return x.b?'<div style="font-weight:700;font-size:'+(x.s||12)+'px">'+h(x.t)+'</div>':'<div>'+h(x.t)+'</div>';}).join('');
  modal('<div class="acts noprint"><button class="btn sm ghost" id="mBack">Voltar</button><button class="btn sm" id="mSave">Salvar</button><button class="btn sm ghost" id="mCopy">Copiar</button></div><p class="noprint"></p><div class="sheet">'+hh+'</div>');
  $('#mBack').onclick=close;$('#mCopy').onclick=showCopy;
- $('#mSave').onclick=function(){var bytes=MiniPDF.make(L),name=(ev.name||'evento').replace(/[^\wÀ-ú -]/g,'').trim()+'.pdf',blob=new Blob([bytes],{type:'application/pdf'});
+ $('#mSave').onclick=function(){makeSheet(function(bytes){var name=(ev.name||'evento').replace(/[^\wÀ-ú -]/g,'').trim()+'.pdf',blob=new Blob([bytes],{type:'application/pdf'});
   var f;try{f=new File([blob],name,{type:'application/pdf'});}catch(e){}
   if(f&&navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:name}).catch(function(){});return;}
-  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();};}
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();});};}
+function sheetData(){var r=C.compute(ev,M),ml={'330':'R$ 330 por pessoa','350':'R$ 350 por pessoa','outro':'Outro valor por pessoa','pecas':'Por peças'}[ev.mode]||'';
+ var v=[];if(r.perPersonFixed!=null)v.push(['Valor por pessoa',B(r.perPersonFixed)],['Combinado ('+r.people+' x '+B(r.perPersonFixed)+')',B(r.perPersonFixed*r.people)]);
+ else v.push(['Peças (entradas + combinado)',r.rows.entradas.lines.concat(r.rows.combinado.lines).some(function(x){return x.value==null;})&&!r.pieces?'Sem preço':B(r.pieces)]);
+ ['quentes','sobremesa','vinho'].forEach(function(k){var R=r.rows[k];if(R.lines.length)v.push([R.title,R.lines.every(function(x){return x.value==null;})?'Sem preço':B(R.total)]);});
+ if(r.closed)v.push(['Por pessoa com 10%',B(r.perPerson10)]);
+ var rows=[];C.ROWS.forEach(function(row){var R=r.rows[row[0]];if(!R.lines.length)return;
+  rows.push({title:row[1],items:R.lines.map(function(x){var it=x.it;return {name:it.name,lancar:x.lancar,unit:x.wine?'garrafas':it.plate?'pratos':'',
+   sub:(x.wine?x.sai+' garrafas':it.plate?'Sai '+x.sai+' pratos':'Sai '+x.sai+' '+u(it))+'  ·  '+B(x.value)};})});});
+ return {name:ev.name||'Evento',date:new Date().toLocaleDateString('pt-BR'),info:r.people+' pessoas  ·  '+ml,vals:v,closed:r.closed,total:B(r.total),total10:B(r.total10),
+  warn:'Coloque o número de pessoas para a conta fechar',missing:r.missing,rows:rows};}
+var LOGO=null;function loadLogo(){var im=new Image();im.onload=function(){try{var w=642,hh=Math.round(w*im.naturalHeight/im.naturalWidth)||507,c=document.createElement('canvas');c.width=w;c.height=hh;var x=c.getContext('2d');
+  x.fillStyle='#05070a';x.fillRect(0,0,w,hh);x.drawImage(im,0,0,w,hh);var s=atob(c.toDataURL('image/jpeg',.92).split(',')[1]),b=new Uint8Array(s.length);
+  for(var i=0;i<s.length;i++)b[i]=s.charCodeAt(i);LOGO={bytes:b,w:w,h:hh};}catch(e){}};im.src='logo.svg';}
+function makeSheet(cb){cb(MiniPDF.sheet(sheetData(),LOGO));}
+loadLogo();
 /* Eventos */
 function showEvents(){var s='<div class="acts"><button class="btn sm ghost" id="mBack">Voltar</button><button class="btn sm" id="mNew">Novo evento</button></div>';
  evs.forEach(function(e){s+='<div class="ev"><div class="t"><b>'+h(e.name)+'</b><div class="meta" style="color:var(--soft);font-size:13px">'+e.people+' pessoas · '+new Date(e.date).toLocaleString('pt-BR')+'</div></div><button class="btn sm ghost" data-o="'+e.id+'">Abrir</button><button class="btn sm ghost" data-del="'+e.id+'" style="border-color:var(--amber);color:var(--amber)">Apagar</button></div>';});
